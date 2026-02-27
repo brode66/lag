@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ULTIMATE COMPUTER MELTER 2026 – MAXIMUM DESTRUCTION MODE</title>
+<style>
+  body {
+    margin:0; height:100vh; overflow:hidden; background:#000;
+    font-family: Arial, Helvetica, sans-serif; color:#ff2222;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+  }
+  h1 {
+    font-size:5.2rem; margin:0.2em 0 1em; text-shadow:0 0 30px #ff0000, 0 0 60px #ff4444;
+    letter-spacing:4px;
+  }
+  .controls {
+    background:rgba(20,0,0,0.85); padding:2.5rem 4rem; border-radius:20px;
+    border:3px solid #990000; margin-bottom:2rem; text-align:center;
+  }
+  label {
+    display:block; font-size:1.6rem; margin:1.4rem 0 0.5rem; text-shadow:0 0 10px #ff4444;
+  }
+  input[type="number"] {
+    width:220px; padding:1rem; font-size:1.8rem; text-align:center;
+    background:#110000; color:#ff8888; border:3px solid #cc0000; border-radius:10px;
+  }
+  #start {
+    padding:1.8rem 7rem; font-size:3rem; font-weight:bold;
+    background:#b00000; color:white; border:6px solid #ff5555;
+    border-radius:18px; cursor:pointer; box-shadow:0 0 60px #ff0000;
+    transition:all 0.2s;
+  }
+  #start:hover {
+    background:#ff1111; transform:scale(1.1); box-shadow:0 0 120px #ff4444;
+  }
+  #status {
+    margin-top:3rem; font-size:1.8rem; min-height:2.2em; text-shadow:0 0 15px #ff0000;
+  }
+  canvas {
+    position:absolute; inset:0; z-index:-1; pointer-events:none;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c2d"></canvas>
+<canvas id="gl"></canvas>
+
+<h1>MAXIMUM MELTDOWN 2026</h1>
+
+<div class="controls">
+  <label for="ram">Target RAM to EAT (GB) — max 32</label>
+  <input type="number" id="ram" value="12" min="1" max="32" step="1">
+
+  <label for="bots">CPU/GPU KILLER BOTS (workers) — max 1000</label>
+  <input type="number" id="bots" value="600" min="10" max="1000" step="50">
+</div>
+
+<button id="start">IGNITE TOTAL DESTRUCTION</button>
+<div id="status">Configure the apocalypse and click START... 🔥</div>
+
+<script>
+// ======================== ULTIMATE DESTRUCTION ENGINE ========================
+
+const status = document.getElementById('status');
+let workers = [];
+let ramArrays = [];
+let domSpam = [];
+
+// Heavy worker code (CPU + local RAM eat)
+function createEvilWorker() {
+  const blob = new Blob([`
+    let localRAM = [];
+    // Eat RAM inside worker too
+    try {
+      for(let i = 0; i < 80; i++) {
+        localRAM.push(new Float64Array(1024 * 1024 * 8)); // ~64 MB each
+      }
+    } catch(e) {}
+    
+    function nuclearBurn() {
+      let x = 0.5772156649;
+      while(true) {
+        x = Math.sin(x) * Math.cos(x * 1.618) * Math.tan(x + 0.00007);
+        x = Math.cbrt(Math.exp(x) + Math.log(Math.abs(x) + 1.1));
+        x = Math.hypot(x, Math.sqrt(x * x + 2.71828));
+        for(let i = 0; i < 1200000; i++) {  // INSANE loop
+          x += Math.sin(i * 0.000013) * Math.cos(i * 0.000017) * 0.000001;
+        }
+      }
+    }
+    nuclearBurn();
+  `], {type: 'application/javascript'});
+
+  try {
+    const w = new Worker(URL.createObjectURL(blob));
+    workers.push(w);
+  } catch(e) {}
+}
+
+// Spawn bots in controlled bursts (browser usually dies ~250-450)
+function spawnWorkers(count) {
+  status.textContent = `Spawning up to ${count} nuclear workers...`;
+  let launched = 0;
+  const burst = setInterval(() => {
+    if (launched >= count) {
+      clearInterval(burst);
+      status.textContent = `${workers.length} workers active — browser fighting for life`;
+      return;
+    }
+    for (let i = 0; i < 18; i++) {   // 18 per burst
+      if (launched >= count) break;
+      createEvilWorker();
+      launched++;
+    }
+    status.textContent = `Workers launched: ${launched}/${count}`;
+  }, 90);
+}
+
+// RAM destroyer — multiple array types for max allocation
+function eatRAM(targetGB) {
+  const targetBytes = targetGB * 1024 * 1024 * 1024;
+  status.textContent = `Devouring RAM — targeting ${targetGB} GB...`;
+
+  try {
+    while (ramArrays.length * 12 < targetBytes / (1024*1024)) {
+      // Mix types for harder allocation
+      if (Math.random() < 0.4) {
+        const arr = new Uint8Array(12 * 1024 * 1024); // 12 MB
+        for (let i = 0; i < arr.length; i += 8192) arr[i] = 0xDE;
+        ramArrays.push(arr);
+      } else {
+        const arr = new Float64Array(1.5 * 1024 * 1024); // ~12 MB
+        for (let i = 0; i < arr.length; i += 1024) arr[i] = 3.1415926535;
+        ramArrays.push(arr);
+      }
+
+      const currentGB = (ramArrays.length * 12 / 1024).toFixed(1);
+      status.textContent = `RAM consumed: ${currentGB} / ${targetGB} GB`;
+    }
+  } catch (e) {
+    const currentGB = (ramArrays.length * 12 / 1024).toFixed(1);
+    status.textContent += ` → MAXED at ~${currentGB} GB (browser surrendered)`;
+  }
+}
+
+// ======================== 2D CANVAS CPU/GPU CHAOS ========================
+const c2d = document.getElementById('c2d');
+const ctx2d = c2d.getContext('2d', {willReadFrequently: true});
+let w, h, time = 0;
+
+function resize() {
+  w = c2d.width = window.innerWidth * devicePixelRatio;
+  h = c2d.height = window.innerHeight * devicePixelRatio;
+  c2d.style.width = window.innerWidth + 'px';
+  c2d.style.height = window.innerHeight + 'px';
+}
+window.addEventListener('resize', resize);
+resize();
+
+function canvasHell() {
+  time += 0.023;
+  const img = ctx2d.createImageData(w, h);
+  const d = img.data;
+
+  for (let i = 0; i < d.length; i += 4) {
+    const x = (i / 4) % w;
+    const y = Math.floor(i / 4 / w);
+    const dist = Math.hypot(x - w/2, y - h/2);
+
+    let v = 0;
+    for (let k = 1; k < 18; k++) {
+      v += Math.sin(x * 0.019 * k + time * (1.7 + k * 0.1)) *
+           Math.cos(y * 0.027 * k + time * (2.4 + k * 0.15)) * (1/k);
+    }
+
+    const r = (Math.sin(v * 3.1 + time * 7) * 127 + 128) | 0;
+    const g = (Math.sin(v * 4.8 + time * 11) * 127 + 128) | 0;
+    const b = (Math.sin(v * 6.3 + time * 15) * 127 + 128) | 0;
+
+    d[i] = r; d[i+1] = g; d[i+2] = b; d[i+3] = 255;
+  }
+  ctx2d.putImageData(img, 0, 0);
+
+  // extra main-thread burn
+  for (let j = 0; j < 180000; j++) Math.cbrt(Math.sin(time * j) ** 2);
+
+  requestAnimationFrame(canvasHell);
+}
+
+// ======================== WEBGL MAXIMUM GPU TORTURE ========================
+const glCanvas = document.getElementById('gl');
+const gl = glCanvas.getContext('webgl', {preserveDrawingBuffer: false}) || 
+           glCanvas.getContext('experimental-webgl');
+
+function resizeGL() {
+  glCanvas.width = window.innerWidth * devicePixelRatio;
+  glCanvas.height = window.innerHeight * devicePixelRatio;
+  glCanvas.style.width = window.innerWidth + 'px';
+  glCanvas.style.height = window.innerHeight + 'px';
+  if (gl) gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+}
+window.addEventListener('resize', resizeGL);
+resizeGL();
+
+let glProgram, glTimeLoc;
+
+if (gl) {
+  // Vertex shader — full screen quad
+  const vsSource = `
+    attribute vec2 a_position;
+    void main() { gl_Position = vec4(a_position, 0.0, 1.0); }
+  `;
+
+  // FRAGMENT SHADER — 300+ heavy iterations per pixel (GPU killer)
+  const fsSource = `
+    precision highp float;
+    uniform float u_time;
+    uniform vec2 u_resolution;
+
+    void main() {
+      vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+      vec2 p = uv * 2.0 - 1.0;
+      float color = 0.0;
+      float t = u_time * 1.4;
+
+      for (int i = 0; i < 320; i++) {   // EXTREME per-pixel load
+        float fi = float(i);
+        p = abs(p) / dot(p, p) - vec2(1.32 + sin(t * 0.7) * 0.08);
+        color += sin(p.x * fi * 0.13 + t * 1.9) * 
+                 cos(p.y * fi * 0.17 + t * 2.3) * 
+                 pow(length(p), 1.8);
+        color += sqrt(abs(sin(fi * 0.07 + t))) * 0.3;
+      }
+
+      color = fract(color * 0.017);
+      gl_FragColor = vec4(
+        sin(color * 12.0 + t * 3.1) * 0.5 + 0.5,
+        sin(color * 17.0 + t * 4.7) * 0.5 + 0.5,
+        sin(color * 23.0 + t * 6.9) * 0.5 + 0.5,
+        1.0
+      );
+    }
+  `;
+
+  function createShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    return shader;
+  }
+
+  const vertexShader = createShader(gl.VERTEX_SHADER, vsSource);
+  const fragmentShader = createShader(gl.FRAGMENT_SHADER, fsSource);
+
+  glProgram = gl.createProgram();
+  gl.attachShader(glProgram, vertexShader);
+  gl.attachShader(glProgram, fragmentShader);
+  gl.linkProgram(glProgram);
+  gl.useProgram(glProgram);
+
+  // Quad vertices
+  const positionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+  const posLoc = gl.getAttribLocation(glProgram, "a_position");
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+  glTimeLoc = gl.getUniformLocation(glProgram, "u_time");
+  const resLoc = gl.getUniformLocation(glProgram, "u_resolution");
+  gl.uniform2f(resLoc, glCanvas.width, glCanvas.height);
+
+  function webglHell(t) {
+    gl.uniform1f(glTimeLoc, t * 0.001);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(webglHell);
+  }
+  requestAnimationFrame(webglHell);
+} else {
+  console.log("WebGL not available — falling back to 2D hell only");
+}
+
+// ======================== DOM SPAM + CSS GPU COMPOSITING HELL ========================
+function startDOMSpam() {
+  for (let i = 0; i < 1800; i++) {
+    const div = document.createElement('div');
+    div.style.position = 'absolute';
+    div.style.left = Math.random() * 100 + 'vw';
+    div.style.top = Math.random() * 100 + 'vh';
+    div.style.width = (8 + Math.random() * 35) + 'px';
+    div.style.height = div.style.width;
+    div.style.background = `hsl(${Math.random()*360}, 100%, 60%)`;
+    div.style.borderRadius = '50%';
+    div.style.filter = 'blur(6px) drop-shadow(0 0 25px #fff)';
+    div.style.opacity = '0.75';
+    div.style.willChange = 'transform, left, top, filter';
+    div.style.transition = 'transform 0.04s linear, left 0.07s linear, top 0.07s linear';
+    document.body.appendChild(div);
+    domSpam.push(div);
+  }
+
+  // Animate them with heavy math
+  let spamTime = 0;
+  setInterval(() => {
+    spamTime += 0.12;
+    for (let i = 0; i < domSpam.length; i++) {
+      const d = domSpam[i];
+      const angle = spamTime + i * 0.07;
+      const dx = Math.sin(angle * 1.3) * 18;
+      const dy = Math.cos(angle * 1.7) * 18;
+      d.style.transform = `translate(${dx}px, ${dy}px) scale(${1 + Math.sin(spamTime + i) * 0.4})`;
+    }
+  }, 30);
+}
+
+// ======================== AUDIO OSCILLATOR STRESS ========================
+function startAudioHell() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < 180; i++) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = i % 3 === 0 ? 'sawtooth' : 'square';
+      osc.frequency.setValueAtTime(60 + i * 7.3, audioCtx.currentTime);
+      gain.gain.value = 0.008;
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start();
+    }
+  } catch(e) {}
+}
+
+// ======================== IGNITION ========================
+document.getElementById('start').onclick = () => {
+  const targetGB = parseInt(document.getElementById('ram').value) || 12;
+  let botCount = Math.min(1000, Math.max(10, parseInt(document.getElementById('bots').value) || 600));
+
+  // Remove controls
+  document.querySelector('.controls').remove();
+  document.getElementById('start').remove();
+
+  // Fullscreen for maximum immersion
+  if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+
+  status.textContent = `🔥 TOTAL DESTRUCTION INITIATED — ${targetGB} GB + ${botCount} bots + WebGL + DOM spam`;
+
+  // Launch EVERYTHING at once
+  setTimeout(() => spawnWorkers(botCount), 200);
+  setTimeout(() => eatRAM(targetGB), 600);
+  setTimeout(() => requestAnimationFrame(canvasHell), 900);
+  setTimeout(startDOMSpam, 1200);
+  setTimeout(startAudioHell, 1500);
+
+  // Extra main-thread burn every 80ms
+  setInterval(() => {
+    for (let i = 0; i < 250000; i++) Math.hypot(Math.sin(i), Math.tan(time + i * 0.0001));
+  }, 80);
+};
+
+</script>
+</body>
+</html>
